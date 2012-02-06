@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="apple.png" rel="apple-touch-icon"/>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"><!-- --></script>
+    <script type="text/javascript" src="underscore-min.js"><!-- --></script>
+    <script type="text/javascript" src="dates-min.js"><!-- --></script>
+    <script type="text/template" id="jobs-template">
+
+        <% _.each(jobs, function(job) { %>
+        <div class="job <%= job.result %>">
+
+            <a href="<%= job.url %>">
+                <%= job.name %>
+            </a>
+
+            <span class="duration">
+                <%= job.duration %>
+            </span>
+
+            <div class="details">
+                <% if (job.result === 'failure') { %>
+                    <% _.each(job.culprits, function(culprit) { %>
+                        <%= culprit.fullName %>
+                    <% }); %>
+                <% } %>
+            </div>
+
+            <% if (job.building) { %>
+            <a href="http://build.search.bskyb.com/job/<%= job.name %>/<%= job.number %>/stop" class="ajax spinner" title="stop">
+
+            </a>
+            <% } else { %>
+            <a href="http://build.search.bskyb.com/job/<%= job.name %>/build?delay=0sec" class="ajax start" title="build">
+
+            </a>
+            <% } %>
+
+            <div class="date">
+                <%= job.prettyDate %>
+            </div>
+        </div>
+        <% }); %>
+
+    </script>
+
+    <script type="text/javascript" src="jobs.js"> </script>
+    <link href="jobs.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="jobs"></div>
+
+</body>
+</html>
