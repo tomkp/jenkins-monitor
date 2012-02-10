@@ -2,35 +2,15 @@
 
     var JenkinsMonitor = {};
 
-    var jobs,
-        count,
-        total;
+    var
+        jobTemplate,
+        jobDataTemplate,
+        sort = "name",
+        columns,
+        columnWidth
+        ;
 
-    /*
-     * JavaScript Pretty Date
-     * Copyright (c) 2011 John Resig (ejohn.org)
-     * Licensed under the MIT and GPL licenses.
-     */
-    // Takes an ISO time and returns a string representing how
-    // long ago the date represents.
-    var prettyDate = function (time) {
-        var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
-            diff = (((new Date()).getTime() - date.getTime()) / 1000),
-            day_diff = Math.floor(diff / 86400);
 
-        if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-            return;
-
-        return day_diff == 0 && (
-            diff < 60 && "just now" ||
-                diff < 120 && "1 minute ago" ||
-                diff < 3600 && Math.floor(diff / 60) + " minutes ago" ||
-                diff < 7200 && "1 hour ago" ||
-                diff < 86400 && Math.floor(diff / 3600) + " hours ago") ||
-            day_diff == 1 && "Yesterday" ||
-            day_diff < 7 && day_diff + " days ago" ||
-            day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
-    };
 
 
     var urlParams = function () {
@@ -47,32 +27,66 @@
     };
 
 
-    JenkinsMonitor.updateJob = function (job) {
-        count++;
-        job.name = job.fullDisplayName.replace(/ \#.*/, "");
-        job.result = job.result || "building";
-        job.result = job.result.toLowerCase();
-        job.date = Dates.format(new Date(job.timestamp), "EEE dd MMM yyyy HH:mm:ss");
-        job.prettyDate = prettyDate(job.date);
-        jobs.push(job);
+
+    var create = function(job) {
+        var display = {};
+
+        //console.info(job);
+
+        var lastBuild = job["lastBuild"];
+
+        var successfulBuild = job["lastSuccessfulBuild"];
+
+        display.building = lastBuild.building;
+        display.url = lastBuild.url;
+        display.name = lastBuild["fullDisplayName"].replace(/ \#.*/, "");
+        display.displayName = display.name.replace(/-/g, " ");
+        display.result = lastBuild.result || "building";
+        display.result = display.result.toLowerCase();
+        display.duration = lastBuild.duration;
+        display.timestamp = lastBuild.timestamp;
+
+        display.finished = lastBuild.timestamp + lastBuild.duration;
+        display.date = moment(lastBuild.timestamp);
+
+        display.howLong = display.date.from(moment(display.finished), true);
+        display.fromNow = moment(display.finished).fromNow();
+        display.culprits = lastBuild.culprits;
+
+        display.buildStarted = display.date.from(moment(), false);
+
+        //var healthReport = job["healthReport"];
+        //display.health = healthReport[0].score;
+
+        if (lastBuild.building) {
+            var length = new Date().getTime() - lastBuild.timestamp;
+            display.complete = ((length / successfulBuild.duration) * 100).toFixed(0);
+        }
+
+        return display;
     };
 
 
+
     JenkinsMonitor.updateProject = function (response) {
-        jobs = [];
-        count = 0;
-        total = response.jobs.length;
+        $("#jobs").children().remove();
+        var builds = [];
         _.each(response.jobs, function (job) {
-            var options = {
-                url: "http://build.search.bskyb.com/job/" + job.name + "/lastBuild/api/json",
-                data: {
-                    jsonp: "JenkinsMonitor.updateJob"
-                },
-                dataType: "jsonp"
-            };
-            $.ajax(options);
+            var display = create(job);
+            builds.push(display);
+        });
+        builds = _.sortBy(builds, function(item) {
+            return item[sort];
+        });
+        _.each(builds, function (job) {
+            var jobHtml = _.template(jobDataTemplate, {job: job});
+            $("#jobs").append(jobHtml);
+            if (columns > 1) {
+                $(".job").css({width: columnWidth + "%"});
+            }
         });
         $("title").html(response.name);
+        setTimeout(JenkinsMonitor.update, 2000);
     };
 
 
@@ -80,16 +94,22 @@
 
         var req,
             build,
-            server,
-            jobsTemplate;
+            server;
 
-
-        jobsTemplate = $("#jobs-template").html();
+        jobTemplate = $("#job-template").html();
+        jobDataTemplate = $("#job-data-template").html();
 
         req = urlParams();
+        sort = req["sort"] || "name";
         build = req["build"];
         server = req["server"];
         build = build || "All";
+
+        columns = req["columns"] || 1;
+
+        if (columns > 1) {
+            columnWidth =  100 / columns;
+        }
 
 
         $(".ajax").live("click", function (e) {
@@ -99,33 +119,19 @@
             return false;
         });
 
-        var monitor = function () {
-            if (count === total) {
-
-                jobs = _.sortBy(jobs, function (job) {
-                    return job.name;
-                });
-
-                var html = _.template(jobsTemplate, {jobs: jobs});
-                $("#jobs").html(html);
-
-            }
-        };
-        monitor();
-        setInterval(monitor, 1000);
-
         var options = {
             url: "http://" + server + "/view/" + build + "/api/json",
             data: {
-                jsonp: "JenkinsMonitor.updateProject"
+                jsonp: "JenkinsMonitor.updateProject",
+                depth: 2
             },
             dataType: "jsonp"
         };
-        var update = function () {
+        JenkinsMonitor.update = function () {
             $.ajax(options);
         };
-        update();
-        setInterval(update, 10000);
+        JenkinsMonitor.update();
+
     });
 
     window.JenkinsMonitor = JenkinsMonitor;

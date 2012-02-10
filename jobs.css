@@ -1,53 +1,8 @@
-/* http://meyerweb.com/eric/tools/css/reset/
-   v2.0 | 20110126
-   License: none (public domain)
-*/
-
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    vertical-align: baseline;
-}
-
-article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section {
-    display: block;
-}
-
-body {
-    line-height: 1;
-}
-
-ol, ul {
-    list-style: none;
-}
-
-blockquote, q {
-    quotes: none;
-}
-
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content: '';
-    content: none;
-}
 
 /*---*/
+
+* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
 
 html, body {
     margin: 0;
@@ -58,9 +13,8 @@ html, body {
 }
 
 body {
-    width: 100%;
-    font-size: 24px;
-    line-height: 32px;
+    font-size: 32px;
+    line-height: 36px;
 }
 
 a,
@@ -76,52 +30,44 @@ a:hover {
     text-decoration: underline;
 }
 
-.job {
-
-    -moz-column-break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    column-break-inside: avoid;
-
-    /*display: inline-block;*/
-
-    /*-webkit-column-width: 100%;*/
-    /*-moz-column-width: 100%;*/
-    /*column-width: 100%;*/
-
-    padding: .25em;
-    border-bottom: 1px solid #fff;;
-    position: relative;
-}
 
 #jobs {
-
-    -webkit-column-width: 100%;
-    -moz-column-width: 100%;
-    column-width: 100%;
-
-
-    -moz-column-break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    column-break-inside: avoid;
-
-    -moz-column-count: 2;
-    -webkit-column-count: 2;
-    column-count: 2;
-
-    -moz-column-gap:1px;
-    -webkit-column-gap:1px;
-    column-gap:1px;
-
-    column-fill:none;
+    display: block;
 }
+
+.job {
+    float: left;
+    width: 100%;
+    padding: 0.25em .5em ;
+    position: relative;
+    margin: 0;
+    border-right: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+}
+
+.header {
+
+}
+
+.controls {
+    float: right;
+}
+
 
 .details {
-    font-size: .6em;
-    height: 2em;
+    font-size: .7em;
 }
 
+
+.culprits {
+    color: #333;
+}
+
+
+
 .duration {
-    display: none;
+    display: inline-block;
+    color: #333;
 }
 
 .building {
@@ -130,18 +76,13 @@ a:hover {
 }
 
 
+
 .date {
-    font-size: .6em;
-    position: absolute;
-    right: 1em;
-    bottom: .25em;
+    float: right;
 }
 
 
 .spinner {
-    position: absolute;
-    right: 1em;
-    top: .5em;
     display: inline-block;
     width: 32px;
     height: 32px;
@@ -149,17 +90,14 @@ a:hover {
 }
 
 .start {
-    position: absolute;
-    right: 1em;
-    top: .5em;
     display: inline-block;
-    width: 32px;
-    height: 32px;
-    opacity: .25;
+    opacity: 0.01;
 }
 
+
 .job:hover .start {
-    background: url("refresh.png") no-repeat;
+    opacity: 0.5;
+    text-decoration: none;
 }
 
 .failure {
@@ -187,6 +125,18 @@ a:hover {
 }
 
 .aborted {
-    color: dodgerblue;
-    background-color: white;
+    background-color: red;
+}
+
+
+progress {
+
+    border: 0;
+}
+
+progress::-webkit-progress-bar-value,
+progress::-webkit-progress-value,
+progress::-moz-progress-bar {
+    background: #00A000;
+
 }

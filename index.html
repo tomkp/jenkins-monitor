@@ -2,54 +2,75 @@
 <html>
 <head>
     <title></title>
-    <link href="apple.png" rel="apple-touch-icon"/>
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+    <link href="duration/apple.png" rel="apple-touch-icon"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
+    <link rel="stylesheet" type="text/css" href="jobs.css"/>
+
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"><!-- --></script>
-    <script type="text/javascript" src="underscore-min.js"><!-- --></script>
-    <script type="text/javascript" src="dates-min.js"><!-- --></script>
-    <script type="text/template" id="jobs-template">
+    <script type="text/javascript" src="duration/underscore-min.js"><!-- --></script>
+    <script type="text/javascript" src="moment.min.js"><!-- --></script>
 
-        <% _.each(jobs, function(job) { %>
-        <div class="job <%= job.result %>">
 
-            <a href="<%= job.url %>">
-                <%= job.name %>
+
+    <script type="text/template" id="job-data-template">
+        <div id="<%= job.name %>" class="job <%= job.result %>">
+
+            <div class="header">
+            <a class="url" href="<%= job.url %>">
+                <%= job.displayName %>
             </a>
 
-            <span class="duration">
-                <%= job.duration %>
+             <span class="controls">
+                <% if (job.building) { %>
+                <a href="http://build.search.bskyb.com/job/<%= job.name %>/<%= job.number %>/stop" class="ajax spinner"
+                   title="stop">
+
+                </a>
+                <% } else { %>
+                <a href="http://build.search.bskyb.com/job/<%= job.name %>/build?delay=0sec" class="ajax start"
+                   title="build">
+                    &orarr;
+                </a>
+            <% } %>
             </span>
+            </div>
 
             <div class="details">
-                <% if (job.result === 'failure') { %>
+                <span class="culprits">
+                    <% if (job.result === 'failure') { %>
                     <% _.each(job.culprits, function(culprit) { %>
-                        <%= culprit.fullName %>
+                    <span class="culprit"><%= culprit.fullName %></span>
                     <% }); %>
+                    <% } %>
+                </span>
+
+                <span class="date">
+                <% if (!job.building) { %>
+
+
+                    built in <%= job.howLong %>
+
+                    <%= job.fromNow %>
+
+                <% } else { %>
+
+                    started <%= job.buildStarted %>
+
+                    <% if (job.complete >= 0) { %>
+                        <%= job.complete %>% complete
+                        <progress value="<%= job.complete %>" max="100"><%= job.complete %>%</progress>
+                    <% } %>
                 <% } %>
-            </div>
-
-            <% if (job.building) { %>
-            <a href="http://build.search.bskyb.com/job/<%= job.name %>/<%= job.number %>/stop" class="ajax spinner" title="stop">
-
-            </a>
-            <% } else { %>
-            <a href="http://build.search.bskyb.com/job/<%= job.name %>/build?delay=0sec" class="ajax start" title="build">
-
-            </a>
-            <% } %>
-
-            <div class="date">
-                <%= job.prettyDate %>
+                </span>
             </div>
         </div>
-        <% }); %>
-
     </script>
 
-    <script type="text/javascript" src="jobs.js"> </script>
-    <link href="jobs.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="jobs.js"></script>
+
+
 </head>
 <body>
 
