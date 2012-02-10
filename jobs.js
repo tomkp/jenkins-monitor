@@ -30,13 +30,8 @@
 
     var create = function(job) {
         var display = {};
-
-        //console.info(job);
-
         var lastBuild = job["lastBuild"];
-
         var successfulBuild = job["lastSuccessfulBuild"];
-
         display.building = lastBuild.building;
         display.url = lastBuild.url;
         display.name = lastBuild["fullDisplayName"].replace(/ \#.*/, "");
@@ -60,7 +55,11 @@
 
         if (lastBuild.building) {
             var length = new Date().getTime() - lastBuild.timestamp;
-            display.complete = ((length / successfulBuild.duration) * 100).toFixed(0);
+            if (length > successfulBuild.duration) {
+                display.complete = 100;
+            } else {
+                display.complete = ((length / successfulBuild.duration) * 100).toFixed(0);
+            }
         }
 
         return display;

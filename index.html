@@ -2,13 +2,13 @@
 <html>
 <head>
     <title></title>
-    <link href="duration/apple.png" rel="apple-touch-icon"/>
+    <link href="../jenkins-duration/apple.png" rel="apple-touch-icon"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <link rel="stylesheet" type="text/css" href="jobs.css"/>
 
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"><!-- --></script>
-    <script type="text/javascript" src="duration/underscore-min.js"><!-- --></script>
+    <script type="text/javascript" src="../jenkins-duration/underscore-min.js"><!-- --></script>
     <script type="text/javascript" src="lib/moment.min.js"><!-- --></script>
 
 
@@ -25,6 +25,20 @@
                 <% if (job.building) { %>
                 <a href="http://build.search.bskyb.com/job/<%= job.name %>/<%= job.number %>/stop" class="ajax spinner"
                    title="stop">
+                    <div class="spinner">
+                        <div class="bar1"></div>
+                        <div class="bar2"></div>
+                        <div class="bar3"></div>
+                        <div class="bar4"></div>
+                        <div class="bar5"></div>
+                        <div class="bar6"></div>
+                        <div class="bar7"></div>
+                        <div class="bar8"></div>
+                        <div class="bar9"></div>
+                        <div class="bar10"></div>
+                        <div class="bar11"></div>
+                        <div class="bar12"></div>
+                    </div>
 
                 </a>
                 <% } else { %>
