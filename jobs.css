@@ -86,7 +86,7 @@ a:hover {
     display: inline-block;
     width: 32px;
     height: 32px;
-    background: url("loading.gif") no-repeat;
+    background: url("assets/loading.gif") no-repeat;
 }
 
 .start {
