@@ -4,13 +4,11 @@
 
     var
         jobTemplate,
-        jobDataTemplate,
-        sort = "name",
-        columns,
-        columnWidth
-        ;
+        jobDataTemplate;
 
 
+
+    var config;
 
 
     var urlParams = function () {
@@ -28,11 +26,12 @@
 
 
 
-    var create = function(job) {
+    var augment = function(job) {
         var display = {};
         var lastBuild = job["lastBuild"];
         var successfulBuild = job["lastSuccessfulBuild"];
         display.building = lastBuild.building;
+        display.jobUrl = job.url;
         display.url = lastBuild.url;
         display.name = lastBuild["fullDisplayName"].replace(/ \#.*/, "");
         display.displayName = display.name.replace(/-/g, " ");
@@ -54,12 +53,23 @@
         //display.health = healthReport[0].score;
 
         if (lastBuild.building) {
-            var length = new Date().getTime() - lastBuild.timestamp;
-            if (length > successfulBuild.duration) {
+            var time = new Date().getTime();
+            var length = time - lastBuild.timestamp;
+
+            if (!lastBuild.duration || !successfulBuild.duration) {
+                display.estimated = "unknown";
                 display.complete = 100;
             } else {
-                display.complete = ((length / successfulBuild.duration) * 100).toFixed(0);
+                var when = moment(time + (successfulBuild.duration - lastBuild.duration));
+                display.estimated = moment().diff(when);
+                if (length > successfulBuild.duration) {
+                    display.complete = 100;
+                } else {
+                    display.complete = ((length / successfulBuild.duration) * 100).toFixed(0);
+                }
             }
+
+
         }
 
         return display;
@@ -68,32 +78,55 @@
 
 
     JenkinsMonitor.updateProject = function (response) {
+        //console.info("update project");
         $("#jobs").children().remove();
         var builds = [];
         _.each(response.jobs, function (job) {
-            var display = create(job);
+            var display = augment(job);
             builds.push(display);
         });
         builds = _.sortBy(builds, function(item) {
-            return item[sort];
+            return item[config.sort];
         });
         _.each(builds, function (job) {
             var jobHtml = _.template(jobDataTemplate, {job: job});
             $("#jobs").append(jobHtml);
-            if (columns > 1) {
-                $(".job").css({width: columnWidth + "%"});
+            if (config.columns > 1) {
+                $(".job").css({width: config.columnWidth + "%"});
             }
         });
         $("title").html(response.name);
-        setTimeout(JenkinsMonitor.update, 2000);
+        setTimeout(JenkinsMonitor.loadData, 5000);
     };
+
+
+
+    JenkinsMonitor.loadData = function () {
+        //console.info("load data");
+        var options = {
+            url: "http://" + config.server + "/view/" + config.build + "/api/json",
+            data: {
+                jsonp: "JenkinsMonitor.updateProject",
+                depth: 2
+            },
+            dataType: "jsonp"
+        };
+        $.ajax(options);
+    };
+
 
 
     $(function () {
 
-        var req,
+        var
+            sort,
+            req,
             build,
-            server;
+            server,
+            columns,
+            columnWidth
+        ;
+
 
         jobTemplate = $("#job-template").html();
         jobDataTemplate = $("#job-data-template").html();
@@ -110,6 +143,14 @@
             columnWidth =  100 / columns;
         }
 
+        config = {
+            server: server,
+            build: build,
+            columns: columns,
+            columnWidth: columnWidth,
+            sort: sort
+        };
+
 
         $(".ajax").live("click", function (e) {
             $.get($(this).attr("href"), function () {
@@ -118,18 +159,7 @@
             return false;
         });
 
-        var options = {
-            url: "http://" + server + "/view/" + build + "/api/json",
-            data: {
-                jsonp: "JenkinsMonitor.updateProject",
-                depth: 2
-            },
-            dataType: "jsonp"
-        };
-        JenkinsMonitor.update = function () {
-            $.ajax(options);
-        };
-        JenkinsMonitor.update();
+        JenkinsMonitor.loadData();
 
     });
 

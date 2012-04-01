@@ -5,6 +5,8 @@
     <link href="../jenkins-duration/apple.png" rel="apple-touch-icon"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
+    <meta http-equiv="refresh" content="120" />
+
     <link rel="stylesheet" type="text/css" href="jobs.css"/>
 
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"><!-- --></script>
@@ -17,13 +19,13 @@
         <div id="<%= job.name %>" class="job <%= job.result %>">
 
             <div class="header">
-            <a class="url" href="<%= job.url %>">
+            <a class="url" href="<%= job.jobUrl %>">
                 <%= job.displayName %>
             </a>
 
              <span class="controls">
                 <% if (job.building) { %>
-                <a href="http://build.search.bskyb.com/job/<%= job.name %>/<%= job.number %>/stop" class="ajax spinner"
+                <a href="<%= job.url %>stop" class="ajax spinner"
                    title="stop">
                     <div class="spinner">
                         <div class="bar1"></div>
@@ -42,7 +44,7 @@
 
                 </a>
                 <% } else { %>
-                <a href="http://build.search.bskyb.com/job/<%= job.name %>/build?delay=0sec" class="ajax start"
+                <a href="<%= job.jobUrl %>build?delay=0sec" class="ajax start"
                    title="build">
                     &orarr;
                 </a>
@@ -59,7 +61,7 @@
                     <% } %>
                 </span>
 
-                <span class="date">
+                <a href="<%= job.url %>console" class="date">
                 <% if (!job.building) { %>
 
 
@@ -76,7 +78,7 @@
                         <progress value="<%= job.complete %>" max="100"><%= job.complete %>%</progress>
                     <% } %>
                 <% } %>
-                </span>
+                </a>
             </div>
         </div>
     </script>
